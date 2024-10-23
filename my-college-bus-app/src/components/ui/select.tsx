@@ -1,57 +1,35 @@
-import React, { useState } from 'react';
+// components/ui/select.tsx
+import React from 'react';
 
-interface SelectProps {
-  children: React.ReactNode;
-  onValueChange: (value: string) => void;
-}
+// Select Component
+export const Select = ({ children }: { children: React.ReactNode }) => {
+  return <div className="select">{children}</div>;
+};
 
-export const Select: React.FC<SelectProps> = ({ children, onValueChange }) => {
-  const [selectedValue, setSelectedValue] = useState<string>('');
-
-  const handleChange = (value: string) => {
-    setSelectedValue(value);
-    onValueChange(value);
-  };
-
+// SelectTrigger Component
+export const SelectTrigger = ({ id, children }: { id: string, children: React.ReactNode }) => {
   return (
-    <div>
-      <SelectTrigger value={selectedValue} />
-      <SelectContent onChange={handleChange}>{children}</SelectContent>
-    </div>
+    <button id={id} className="select-trigger">
+      {children}
+    </button>
   );
 };
 
-interface SelectTriggerProps {
-  value: string;
-}
+// SelectValue Component
+export const SelectValue = ({ placeholder }: { placeholder: string }) => {
+  return <span className="select-value">{placeholder}</span>;
+};
 
-export const SelectTrigger: React.FC<SelectTriggerProps> = ({ value }) => (
-  <div className="select-trigger">{value || 'Select...'}</div>
-);
+// SelectContent Component
+export const SelectContent = ({ children }: { children: React.ReactNode }) => {
+  return <div className="select-content">{children}</div>;
+};
 
-interface SelectContentProps {
-  children: React.ReactNode;
-  onChange: (value: string) => void;
-}
-
-export const SelectContent: React.FC<SelectContentProps> = ({ children, onChange }) => (
-  <div className="select-content">
-    {React.Children.map(children, child => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child, { onChange });
-      }
-      return child;
-    })}
-  </div>
-);
-
-interface SelectItemProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-export const SelectItem: React.FC<SelectItemProps> = ({ value, onChange, children }) => (
-  <div className="select-item" onClick={() => onChange(value)}>
-    {children}
-  </div>
-);
+// SelectItem Component
+export const SelectItem = ({ value, children }: { value: string, children: React.ReactNode }) => {
+  return (
+    <div className="select-item" data-value={value}>
+      {children}
+    </div>
+  );
+};

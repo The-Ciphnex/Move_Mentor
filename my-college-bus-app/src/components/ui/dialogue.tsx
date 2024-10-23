@@ -1,57 +1,31 @@
-import React from 'react';
+// src/components/ui/dialog.tsx
+import React, { useState } from 'react';
+import './dialog.css';
 
-interface DialogProps {
-  children: React.ReactNode;
-}
+export const Dialog = ({ children }: { children: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-export const Dialog: React.FC<DialogProps> = ({ children }) => (
-  <div className="dialog">{children}</div>
-);
+  return (
+    <>
+      <button className="dialog-trigger" onClick={() => setIsOpen(true)}>
+        Open Dialog
+      </button>
 
-interface DialogTriggerProps {
-  children: React.ReactNode;
-}
-
-export const DialogTrigger: React.FC<DialogTriggerProps> = ({ children }) => (
-  <button className="dialog-trigger">{children}</button>
-);
-
-interface DialogContentProps {
-  children: React.ReactNode;
-}
-
-export const DialogContent: React.FC<DialogContentProps> = ({ children }) => (
-  <div className="dialog-content">{children}</div>
-);
-
-interface DialogHeaderProps {
-  children: React.ReactNode;
-}
-
-export const DialogHeader: React.FC<DialogHeaderProps> = ({ children }) => (
-  <div className="dialog-header">{children}</div>
-);
-
-interface DialogTitleProps {
-  children: React.ReactNode;
-}
-
-export const DialogTitle: React.FC<DialogTitleProps> = ({ children }) => (
-  <h2 className="dialog-title">{children}</h2>
-);
-
-interface DialogDescriptionProps {
-  children: React.ReactNode;
-}
-
-export const DialogDescription: React.FC<DialogDescriptionProps> = ({ children }) => (
-  <p className="dialog-description">{children}</p>
-);
-
-interface DialogFooterProps {
-  children: React.ReactNode;
-}
-
-export const DialogFooter: React.FC<DialogFooterProps> = ({ children }) => (
-  <div className="dialog-footer">{children}</div>
-);
+      {isOpen && (
+        <div className="dialog-overlay" onClick={() => setIsOpen(false)}>
+          <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3>Dialog Title</h3>
+            </div>
+            <div className="dialog-body">{children}</div>
+            <div className="dialog-footer">
+              <button className="dialog-close" onClick={() => setIsOpen(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};

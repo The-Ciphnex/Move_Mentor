@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Bell, UserCircle, LogOut } from "lucide-react"
+import { MapPin, UserCircle, LogOut } from "lucide-react"
 
 export default function CollegeBusApp() {
   const [currentView, setCurrentView] = useState("main")

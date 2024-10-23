@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, MapPin, User } from "lucide-react";
+import { Avatar} from "@/components/ui/avatar";
+import { Bell, MapPin} from "lucide-react";
 
 export default function DriverDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,15 +18,14 @@ export default function DriverDashboard() {
     name: '',
     phone: '',
     email: '',
+    avatar: '',
   });
   const [isLocationSharing, setIsLocationSharing] = useState(false);
   const [sharingDuration, setSharingDuration] = useState(30);
-  const [notifications, setNotifications] = useState([
+  const [notifications] = useState([
     { id: 1, student: 'vanitha', message: 'Will be absent tomorrow' },
     { id: 2, student: 'hem', message: 'Will be late by 15 minutes' },
   ]);
-  
-
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,10 +185,7 @@ export default function DriverDashboard() {
         </CardContent>
         <CardFooter className="flex justify-between">
           <div className="flex items-center space-x-2">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Driver" />
-              <AvatarFallback><User /></AvatarFallback>
-            </Avatar>
+          <Avatar src={driverInfo.avatar} alt="Driver" />
             <div>
               <p className="text-sm font-medium">{driverInfo.name || 'Driver'}</p>
               <p className="text-xs text-muted-foreground">Route {driverInfo.routeNumber}</p>

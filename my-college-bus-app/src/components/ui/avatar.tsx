@@ -1,14 +1,13 @@
 import React from 'react';
 
 interface AvatarProps {
-  src: string;
+  src?: string;  // src can be optional for cases where fallback is used
   alt?: string;
 }
 
 export const Avatar: React.FC<AvatarProps> = ({ src, alt }) => (
   <div className="w-12 h-12 rounded-full overflow-hidden">
-    <AvatarImage src={src} alt={alt} />
-    <AvatarFallback />
+    {src ? <AvatarImage src={src} alt={alt} /> : <AvatarFallback />}  {/* Conditional rendering based on src */}
   </div>
 );
 
@@ -23,6 +22,6 @@ export const AvatarImage: React.FC<AvatarImageProps> = ({ src, alt }) => (
 
 export const AvatarFallback: React.FC = () => (
   <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-    <span className="text-white">?</span>
+    <span className="text-white">?</span>  {/* Fallback icon or text */}
   </div>
 );

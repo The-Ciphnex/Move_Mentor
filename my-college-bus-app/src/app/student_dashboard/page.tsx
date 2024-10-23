@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,8 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, AlertTriangle, Clock } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-
+export const IconSet = () => (
+  <div>
+    <MapPin size={24} />
+    <AlertTriangle size={24} />
+    <Clock size={24} />
+  </div>
+);
 export default function StudentDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [studentInfo, setStudentInfo] = useState({
@@ -21,7 +26,6 @@ export default function StudentDashboard() {
   const [estimatedArrival, setEstimatedArrival] = useState('')
   const [absenceReason, setAbsenceReason] = useState('')
   const [absenceDuration, setAbsenceDuration] = useState(1)
-  const [isLate, setIsLate] = useState(false)
   const [lateMinutes, setLateMinutes] = useState(5)
 
   const handleLogin = (e: React.FormEvent) => {

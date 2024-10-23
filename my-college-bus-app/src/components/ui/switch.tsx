@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface SwitchProps {
   checked: boolean;
@@ -6,19 +6,14 @@ interface SwitchProps {
   id?: string;
 }
 
-const Switch: React.FC<SwitchProps> = ({ checked, onChange, id }) => {
+export const Switch: React.FC<SwitchProps> = ({ checked = false, onChange, id }) => {
   const [isChecked, setIsChecked] = useState(checked);
-
+  
   const handleToggle = () => {
     const newChecked = !isChecked;
     setIsChecked(newChecked);
     onChange(newChecked);
   };
-
-  // Ensure the checked state is in sync with the prop
-  useEffect(() => {
-    setIsChecked(checked);
-  }, [checked]);
 
   return (
     <button
@@ -32,5 +27,3 @@ const Switch: React.FC<SwitchProps> = ({ checked, onChange, id }) => {
     </button>
   );
 };
-
-export { Switch };
