@@ -1,0 +1,33 @@
+/* src/components/ui/select.css */
+.select-container {
+    position: relative;
+    width: 200px;
+    margin: 10px;
+  }
+  
+  .select-trigger {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .select-content {
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .select-item {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .select-item:hover {
+    background-color: #f0f0f0;
+  }
+  
