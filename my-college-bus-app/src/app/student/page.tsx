@@ -21,25 +21,28 @@ export default function StudentRegistrationPage() {
     e.preventDefault()
     setError("")
 
+    // Ensure all fields are filled
     if (!studentName || !email || !phoneNumber || !password || !confirmPassword) {
       setError("Please fill in all fields")
       return
     }
 
+    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
     }
 
-    // Here you would typically make an API call to register the student
+    // Simulate API call for student registration
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
+      // If registration is successful, redirect to login
       router.push("/login");
     } catch (err) {
-      console.error(err); // Log the error
+      console.error(err); // Log the error for debugging
       setError("Registration failed. Please try again.");
     }
-}    
+  }    
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

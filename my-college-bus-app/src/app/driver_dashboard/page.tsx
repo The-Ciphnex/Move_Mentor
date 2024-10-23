@@ -185,11 +185,14 @@ export default function DriverDashboard() {
           </Tabs>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <div className="flex items-center space-x-2">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Driver" />
-              <AvatarFallback><User /></AvatarFallback>
-            </Avatar>
+  <div className="flex items-center space-x-2">
+    <Avatar src="/placeholder.svg" alt="Driver">
+      <AvatarFallback>
+        <User />
+      </AvatarFallback>
+    </Avatar>
+
+
             <div>
               <p className="text-sm font-medium">{driverInfo.name || 'Driver'}</p>
               <p className="text-xs text-muted-foreground">Route {driverInfo.routeNumber}</p>
