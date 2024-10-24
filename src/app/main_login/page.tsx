@@ -191,10 +191,10 @@ export default function CollegeBusApp() {
           {currentView !== "main" && (
             <div className="flex items-center space-x-4">
               <UserCircle className="w-6 h-6" />
-              <Button variant="ghost" onClick={() => setCurrentView("main")}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <Button variant="outline" onClick={() => setCurrentView("main")}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout</Button>
+
             </div>
           )}
         </div>

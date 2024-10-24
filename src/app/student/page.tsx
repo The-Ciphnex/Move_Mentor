@@ -108,12 +108,13 @@ export default function StudentRegistrationPage() {
               />
             </div>
             {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+            <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+            </Alert>
             )}
+
             <Button type="submit" className="w-full">Register as Student</Button>
           </form>
         </CardContent>

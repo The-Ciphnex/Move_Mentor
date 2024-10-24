@@ -1,43 +1,62 @@
 "use client";
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function CollegeRegistrationPage() {
-  const [collegeName, setCollegeName] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [collegeName, setCollegeName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!collegeName || !password || !confirmPassword) {
-      setError("Please fill in all fields")
-      return
+      setError("Please fill in all fields");
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
 
-    // Here you would typically make an API call to register the college
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push("/login");
+      // Sending a POST request to the API route we created for registering a college
+      const res = await fetch("/api/registerUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: "college", // We're registering a college
+          name: collegeName,
+          email: "college@example.com", // You can add email input if needed
+          otherDetails: {
+            password: password, // Any additional fields can go here
+          },
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/login"); // Redirect to login upon successful registration
+      } else {
+        const data = await res.json();
+        setError(data.message || "Registration failed. Please try again.");
+      }
     } catch (err) {
-      console.error(err); // Log the error
-      setError("Registration failed. Please try again.");
+      console.error(err);
+      setError("An error occurred during registration. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -84,7 +103,7 @@ export default function CollegeRegistrationPage() {
               />
             </div>
             {error && (
-              <Alert variant="destructive">
+              <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
@@ -110,5 +129,5 @@ export default function CollegeRegistrationPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

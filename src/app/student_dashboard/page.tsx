@@ -1,13 +1,13 @@
-'use client'
+'use client';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MapPin, AlertTriangle, Clock } from 'lucide-react';
 
-import { useState} from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, AlertTriangle, Clock } from "lucide-react"
 export const IconSet = () => (
   <div>
     <MapPin size={24} />
@@ -15,55 +15,49 @@ export const IconSet = () => (
     <Clock size={24} />
   </div>
 );
-export default function StudentDashboard() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+const StudentDashboard: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [studentInfo, setStudentInfo] = useState({
     id: '',
     name: '',
     busId: '',
-  })
-  const [busLocation, setBusLocation] = useState({ lat: 0, lng: 0 })
-  const [estimatedArrival, setEstimatedArrival] = useState('')
-  const [absenceReason, setAbsenceReason] = useState('')
-  const [absenceDuration, setAbsenceDuration] = useState(1)
-  const [lateMinutes, setLateMinutes] = useState(5)
+  });
+  const [busLocation, setBusLocation] = useState({ lat: 0, lng: 0 });
+  const [estimatedArrival, setEstimatedArrival] = useState('');
+  const [absenceReason, setAbsenceReason] = useState('');
+  const [absenceDuration, setAbsenceDuration] = useState(1);
+  const [lateMinutes, setLateMinutes] = useState(5);
 
   const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app, you would validate the student's credentials here
-    setIsLoggedIn(true)
-  }
+    e.preventDefault();
+    setIsLoggedIn(true); // Simplified login for demo purposes
+  };
 
   const handleBusSelection = (busId: string) => {
-    setStudentInfo({ ...studentInfo, busId })
-    // In a real app, you would fetch the bus details and start tracking its location
-    simulateBusMovement()
-  }
+    setStudentInfo({ ...studentInfo, busId });
+    simulateBusMovement();
+  };
 
   const simulateBusMovement = () => {
-    // This is a simplified simulation. In a real app, you'd use real-time data.
-    let i = 0
+    let i = 0;
     const interval = setInterval(() => {
-      i++
-      setBusLocation({ lat: 40 + i * 0.001, lng: -74 - i * 0.001 })
-      setEstimatedArrival(`${15 - i} minutes`)
-      if (i >= 15) clearInterval(interval)
-    }, 1000)
-  }
+      i++;
+      setBusLocation({ lat: 40 + i * 0.001, lng: -74 - i * 0.001 });
+      setEstimatedArrival(`${15 - i} minutes`);
+      if (i >= 15) clearInterval(interval);
+    }, 1000);
+  };
 
   const reportAbsence = () => {
-    // In a real app, you would send this data to your backend
-    console.log(`Absence reported for ${absenceDuration} days. Reason: ${absenceReason}`)
-    // Here you would also update the route for other students
-    alert("Your absence has been reported. The route will be updated for other students.")
-  }
+    console.log(`Absence reported for ${absenceDuration} days. Reason: ${absenceReason}`);
+    alert('Your absence has been reported. The route will be updated for other students.');
+  };
 
   const reportLate = () => {
-    // In a real app, you would send this data to your backend
-    console.log(`Student will be ${lateMinutes} minutes late`)
-    // Here you would also update the route for the driver
-    alert(`You've reported that you'll be ${lateMinutes} minutes late. The driver will be notified.`)
-  }
+    console.log(`Student will be ${lateMinutes} minutes late`);
+    alert(`You've reported that you'll be ${lateMinutes} minutes late. The driver will be notified.`);
+  };
 
   if (!isLoggedIn) {
     return (
@@ -89,7 +83,7 @@ export default function StudentDashboard() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -107,14 +101,14 @@ export default function StudentDashboard() {
               <TabsTrigger value="late">Running Late</TabsTrigger>
             </TabsList>
             <TabsContent value="bus">
-              <div className="space-y-4">
+            <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="bus-select">Select Your Bus</Label>
                   <Select onValueChange={handleBusSelection}>
                     <SelectTrigger id="bus-select">
-                      <SelectValue placeholder="Select a bus" />
+                      <SelectValue placeholder="Select a bus" value={studentInfo.busId} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent onSelect={(value) => handleBusSelection(value)}>
                       <SelectItem value="bus1">Bus 1</SelectItem>
                       <SelectItem value="bus2">Bus 2</SelectItem>
                       <SelectItem value="bus3">Bus 3</SelectItem>
@@ -198,5 +192,7 @@ export default function StudentDashboard() {
         </CardFooter>
       </Card>
     </div>
-  )
-}
+  );
+};
+
+export default StudentDashboard;
