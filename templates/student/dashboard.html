@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/dashboard.css') }}"
+/>
+{% endblock %} {% block content %}
+<div class="dashboard-container">
+  <div class="card map-card">
+    <h2>Bus Location</h2>
+    <div id="map" style="height: 400px"></div>
+    <!-- Inject bus location into a data attribute -->
+    <div id="bus-data" data-bus-location="{{ bus_location|tojson|safe }}"></div>
+    {% if bus_location %}
+    <p>Last updated: {{ bus_location.timestamp.strftime('%H:%M') }}</p>
+    {% else %}
+    <p>No location data available</p>
+    {% endif %}
+  </div>
+  <div class="card attendance-card">
+    <h2>Mark Attendance</h2>
+    <div class="attendance-buttons">
+      <button class="btn btn-danger" onclick="markAttendance('absent')">
+        Mark as Absent
+      </button>
+      <button class="btn btn-warning" onclick="markAttendance('late')">
+        Will be Late
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+<script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+<script>
+  function initMap() {
+    // Fetch the bus location data from the data attribute
+    const busDataElement = document.getElementById("bus-data");
+    const busLocation = JSON.parse(
+      busDataElement.getAttribute("data-bus-location")
+    );
+    if (busLocation) {
+      var platform = new H.service.Platform({
+        apikey: "pW3ZjxKC5ppRTBZFhSEr-o_yDI7LMIkL1e5utettWa8",
+      });
+      var defaultLayers = platform.createDefaultLayers();
+      var map = new H.Map(
+        document.getElementById("map"),
+        defaultLayers.vector.normal.map,
+        {
+          zoom: 15,
+          center: { lat: busLocation.latitude, lng: busLocation.longitude },
+        }
+      );
+
+      var marker = new H.map.Marker({
+        lat: busLocation.latitude,
+        lng: busLocation.longitude,
+      });
+      map.addObject(marker);
+    }
+  }
+
+  function markAttendance(status) {
+    fetch("/api/mark-attendance", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        date: new Date().toISOString().split("T")[0],
+        status: status,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert(`Successfully marked as ${status}`);
+        }
+      });
+  }
+
+  initMap();
+</script>
+{% endblock %}
