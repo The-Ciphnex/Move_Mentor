@@ -5,11 +5,12 @@ from routes.auth import auth_bp
 from routes.college import college_bp
 from routes.driver import driver_bp
 from routes.student import student_bp
+from mongo import mongo
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bus_management"
-mongo = PyMongo(app)
+mongo.init_app(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp)

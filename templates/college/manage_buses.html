@@ -1,0 +1,127 @@
+{% extends "base.html" %} {% block content %}
+<div class="manage-buses-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Manage Bus Routes</h2>
+      <button class="btn btn-primary" onclick="showAddBusModal()">
+        Add New Bus
+      </button>
+    </div>
+
+    <div class="filters">
+      <div class="form-group">
+        <label>Filter by Status</label>
+        <select id="statusFilter" onchange="filterBuses()">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Search</label>
+        <input
+          type="text"
+          id="searchBuses"
+          onkeyup="searchBuses()"
+          placeholder="Search by route or bus number..."
+        />
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table id="busesTable">
+        <thead>
+          <tr>
+            <th>Bus Number</th>
+            <th>Route Number</th>
+            <th>Driver</th>
+            <th>Capacity</th>
+            <th>Status</th>
+            <th>Last Maintenance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bus in buses %}
+          <tr>
+            <td>{{ bus.bus_number }}</td>
+            <td>{{ bus.route_number }}</td>
+            <td>
+              {{ bus.driver_name if bus.driver_name else 'Not Assigned' }}
+            </td>
+            <td>{{ bus.capacity }}</td>
+            <td>
+              <span class="status-badge {{ bus.status|lower }}">
+                {{ bus.status }}
+              </span>
+            </td>
+            <td>
+              {{ bus.last_maintenance.strftime('%Y-%m-%d') if
+              bus.last_maintenance else 'Not Available' }}
+            </td>
+            <td>
+              <button
+                class="btn btn-sm btn-info"
+                onclick="viewBusDetails('{{ bus._id }}')"
+              >
+                View
+              </button>
+              <button
+                class="btn btn-sm btn-warning"
+                onclick="editBus('{{ bus._id }}')"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn-sm btn-danger"
+                onclick="deleteBus('{{ bus._id }}')"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bus Modal -->
+<div id="addBusModal" class="modal">
+  <div class="modal-content">
+    <h2>Add New Bus</h2>
+    <form id="addBusForm">
+      <div class="form-group">
+        <label>Bus Number</label>
+        <input type="text" name="bus_number" required />
+      </div>
+      <div class="form-group">
+        <label>Route Number</label>
+        <input type="text" name="route_number" required />
+      </div>
+      <div class="form-group">
+        <label>Capacity</label>
+        <input type="number" name="capacity" required />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select name="status" required>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+      </div>
+      <div class="modal-buttons">
+        <button type="submit" class="btn btn-primary">Add Bus</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/manage_buses.js') }}"></script>
+{% endblock %}

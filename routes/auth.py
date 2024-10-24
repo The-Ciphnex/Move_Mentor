@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
+from mongo import mongo  # Import the mongo object
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -8,7 +9,6 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register/<user_type>', methods=['GET', 'POST'])
 def register(user_type):
     if request.method == 'POST':
-        from app import mongo  # Import mongo within the function to avoid circular import
         if user_type == 'college':
             college_data = {
                 'name': request.form['college_name'],
@@ -33,7 +33,6 @@ def register(user_type):
 @auth_bp.route('/login/<user_type>', methods=['GET', 'POST'])
 def login(user_type):
     if request.method == 'POST':
-        from app import mongo  # Import mongo within the function to avoid circular import
         if user_type == 'college':
             college = mongo.db.colleges.find_one(
                 {'email': request.form['email']})
@@ -56,5 +55,16 @@ def login(user_type):
             if student and check_password_hash(student['password'], request.form['password']):
                 session['user_id'] = str(student['_id'])
                 session['user_type'] = 'student'
+                # Ensure the route_number is added to the session
+                session['route_number'] = student['route_number']
                 return redirect(url_for('student.dashboard'))
     return render_template('login.html', user_type=user_type)
+
+
+@auth_bp.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('user_type', None)
+    # Ensure the route_number is removed from the session
+    session.pop('route_number', None)
+    return redirect(url_for('auth.login', user_type='college'))
