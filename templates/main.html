@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Main Login</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Main Login</h1>
+      <label for="login-type">Select Login Type</label>
+      <select id="login-type">
+        <option value="admin">Admin</option>
+        <option value="student">Student</option>
+        <option value="driver">Driver</option>
+        <option value="supervisor">Supervisor</option>
+      </select>
+
+      <label for="id">ID Number</label>
+      <input type="text" id="id" placeholder="Enter your ID" />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" />
+
+      <button onclick="login()">Login</button>
+      <p id="error-message" class="hidden">
+        Invalid credentials. Please try again.
+      </p>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
