@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Move Mentor</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Move Mentor</div>
+      {% if session.user_type %}
+      <div class="nav-links">
+        <a href="{{ url_for(session.user_type + '.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      </div>
+      {% endif %}
+    </nav>
+
+    <main class="container">{% block content %}{% endblock %}</main>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

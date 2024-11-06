@@ -1,0 +1,121 @@
+{% extends "base.html" %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/dashboard.css') }}"
+/>
+{% endblock %} {% block content %}
+<div class="dashboard-container">
+  <div class="sidebar">
+    <div class="college-info">
+      <h2>{{ college.name }}</h2>
+      <p>{{ total_buses }} Active Buses</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active">Dashboard</a>
+      <a href="{{ url_for('college.manage_buses') }}">Manage Buses</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="overview-cards">
+      <div class="card">
+        <h3>Total Buses</h3>
+        <p class="number">{{ total_buses }}</p>
+      </div>
+      <div class="card">
+        <h3>Active Drivers</h3>
+        <p class="number">{{ active_drivers }}</p>
+      </div>
+      <div class="card">
+        <h3>Total Students</h3>
+        <p class="number">{{ total_students }}</p>
+      </div>
+    </div>
+
+    <div class="card route-list">
+      <div class="card-header">
+        <h2>Bus Routes</h2>
+        <button class="btn btn-primary" onclick="showAddRouteModal()">
+          Add Route
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Route Number</th>
+              <th>Bus Number</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for route in routes %}
+            <tr>
+              <td>{{ route.route_number }}</td>
+              <td>{{ route.bus_number }}</td>
+              <td>{{ route.status }}</td>
+              <td>
+                <button
+                  class="btn btn-sm btn-danger"
+                  onclick="deleteRoute('{{ route._id }}')"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Route Modal -->
+<div id="addRouteModal" class="modal">
+  <div class="modal-content">
+    <h2>Add New Route</h2>
+    <form id="addRouteForm" onsubmit="submitAddRoute(event)">
+      <div class="form-group">
+        <label>Route Number</label>
+        <input type="text" name="route_number" required />
+      </div>
+      <div class="form-group">
+        <label>Bus Number</label>
+        <input type="text" name="bus_number" required />
+      </div>
+      <div class="form-group">
+        <label>Stops</label>
+        <div id="stopsList">
+          <div class="stop-entry">
+            <input type="text" name="stops[]" required />
+            <button
+              type="button"
+              class="btn btn-sm btn-danger"
+              onclick="removeStop(this)"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-success"
+          onclick="addStop()"
+        >
+          Add Stop
+        </button>
+      </div>
+      <div class="modal-buttons">
+        <button type="submit" class="btn btn-primary">Add Route</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

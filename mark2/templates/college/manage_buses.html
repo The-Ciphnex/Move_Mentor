@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="manage-buses-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Manage Buses</h2>
+      <button class="btn btn-primary" onclick="showAddBusModal()">Add New Bus</button>
+    </div>
+    <div class="table-responsive">
+      <table id="busesTable">
+        <thead>
+          <tr>
+            <th>Bus Number</th>
+            <th>Route Number</th>
+            <th>Driver</th>
+            <th>Capacity</th>
+            <th>Status</th>
+            <th>Unique Code</th> <!-- New Unique Code Column -->
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bus in buses %}
+          <tr>
+            <td>{{ bus.bus_number }}</td>
+            <td>{{ bus.route_number }}</td>
+            <td>{{ bus.driver_name if bus.driver_name else 'Not Assigned' }}</td>
+            <td>{{ bus.capacity }}</td>
+            <td>{{ bus.status }}</td>
+            <td id="uniqueCode-{{ bus._id }}">{{ bus.unique_code if bus.unique_code else 'Not Generated' }}</td> <!-- Display Unique Code -->
+            <td>
+              <button class="btn btn-sm btn-warning" onclick="editBus('{{ bus._id }}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteBus('{{ bus._id }}')">Delete</button>
+              <button class="btn btn-sm btn-primary" onclick="generateUniqueCode('{{ bus._id }}')">Generate Code</button> <!-- Generate Code Button -->
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Bus Modal -->
+  <div id="addBusModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <h2>Add New Bus</h2>
+      <form id="addBusForm" onsubmit="submitAddBusForm(); return false;">
+        <div class="form-group">
+          <label>Bus Number</label>
+          <input type="text" name="bus_number" required />
+        </div>
+        <div class="form-group">
+          <label>Route Number</label>
+          <input type="text" name="route_number" required />
+        </div>
+        <div class="form-group">
+          <label>Driver Name</label>
+          <input type="text" name="driver_name" required />
+        </div>
+        <div class="form-group">
+          <label>Capacity</label>
+          <input type="number" name="capacity" required />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status" required>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Last Maintenance</label>
+          <input type="date" name="last_maintenance" required />
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn btn-primary">Add Bus</button>
+          <button type="button" class="btn btn-secondary" onclick="closeAddBusModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/manage_buses.js') }}"></script>
+{% endblock %}
