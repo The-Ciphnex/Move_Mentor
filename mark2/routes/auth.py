@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from mongo import mongo  # Import the mongo object
+from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -33,12 +34,16 @@ def register(user_type):
 @auth_bp.route('/login/<user_type>', methods=['GET', 'POST'])
 def login(user_type):
     if request.method == 'POST':
+        remember_me = 'remember_me' in request.form
+        
         if user_type == 'college':
             college = mongo.db.colleges.find_one(
                 {'email': request.form['email']})
             if college and check_password_hash(college['password'], request.form['password']):
                 session['user_id'] = str(college['_id'])
                 session['user_type'] = 'college'
+                if remember_me:
+                    session.permanent = True
                 return redirect(url_for('college.dashboard'))
         elif user_type == 'driver':
             driver = mongo.db.buses.find_one({
@@ -56,6 +61,8 @@ def login(user_type):
                 session['user_id'] = str(student['_id'])
                 session['user_type'] = 'student'
                 session['route_number'] = student['route_number']
+                if remember_me:
+                    session.permanent = True
                 return redirect(url_for('student.dashboard'))
     return render_template('login.html', user_type=user_type)
 

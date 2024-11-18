@@ -9,10 +9,13 @@ from mongo import mongo
 from bson import ObjectId
 import random
 import string
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bus_management"
+app.permanent_session_lifetime = timedelta(
+    days=30)  # Set session lifetime to 30 days
 mongo.init_app(app)
 
 # Register blueprints

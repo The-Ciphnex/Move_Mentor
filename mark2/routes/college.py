@@ -81,13 +81,30 @@ def add_route():
 @college_bp.route('/college/bus_details/<bus_id>', methods=['GET'])
 def bus_details(bus_id):
     bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
-    return jsonify(bus)
+    if bus:
+        # Convert ObjectId to string and create a new dictionary with serializable values
+        bus_data = {
+            'id': str(bus['_id']),
+            'bus_number': bus['bus_number'],
+            'route_number': bus['route_number'],
+            'driver_name': bus['driver_name'],
+            'capacity': bus['capacity'],
+            'status': bus['status'],
+            'last_maintenance': bus['last_maintenance']
+        }
+        return jsonify(bus_data)
+    return jsonify({'error': 'Bus not found'}), 404
 
 
 @college_bp.route('/college/edit_bus/<bus_id>', methods=['POST'])
 def edit_bus(bus_id):
     if 'user_id' not in session or session['user_type'] != 'college':
         return jsonify({'error': 'Unauthorized'}), 401
+
+    # Get the existing bus details
+    existing_bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
+    if not existing_bus:
+        return jsonify({'error': 'Bus not found'}), 404
 
     bus_data = {
         'bus_number': request.form['bus_number'],
@@ -97,7 +114,26 @@ def edit_bus(bus_id):
         'status': request.form['status'],
         'last_maintenance': request.form['last_maintenance']
     }
+
+    # Update bus information
     mongo.db.buses.update_one({'_id': ObjectId(bus_id)}, {'$set': bus_data})
+
+    # Update associated route information if bus_number or route_number changed
+    if (existing_bus['bus_number'] != bus_data['bus_number'] or 
+        existing_bus['route_number'] != bus_data['route_number']):
+        mongo.db.routes.update_many(
+            {
+                'bus_number': existing_bus['bus_number'],
+                'college_id': session['user_id']
+            },
+            {
+                '$set': {
+                    'bus_number': bus_data['bus_number'],
+                    'route_number': bus_data['route_number']
+                }
+            }
+        )
+
     return redirect(url_for('college.manage_buses'))
 
 
@@ -106,8 +142,21 @@ def delete_bus(bus_id):
     if 'user_id' not in session or session['user_type'] != 'college':
         return jsonify({'error': 'Unauthorized'}), 401
 
+    # Get the bus details before deletion
+    bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
+    if not bus:
+        return jsonify({'error': 'Bus not found'}), 404
+
+    # Delete associated routes first
+    mongo.db.routes.delete_many({
+        'bus_number': bus['bus_number'],
+        'college_id': session['user_id']
+    })
+
+    # Then delete the bus
     mongo.db.buses.delete_one({'_id': ObjectId(bus_id)})
-    return jsonify({'success': 'Bus deleted successfully'})
+    
+    return jsonify({'success': 'Bus and associated routes deleted successfully'})
 
 
 @college_bp.route('/college/delete_route/<route_id>', methods=['DELETE'])

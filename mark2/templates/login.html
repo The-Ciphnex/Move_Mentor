@@ -9,7 +9,6 @@
         <label for="unique_code">Unique Code</label>
         <input type="text" id="unique_code" name="unique_code" required />
       </div>
-      <button class="btn btn-primary">Remember Me</button>
       {% else %}
       <div class="form-group">
         <label for="email">Email</label>
@@ -18,6 +17,11 @@
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required />
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="remember_me" value="1"> Remember Me
+        </label>
       </div>
       {% endif %}
 
