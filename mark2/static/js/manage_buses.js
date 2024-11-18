@@ -8,6 +8,11 @@ function closeAddBusModal() {
     modal.style.display = 'none';
 }
 
+function closeEditBusModal() {
+    var modal = document.getElementById('editBusModal');
+    modal.style.display = 'none';
+}
+
 function submitAddBusForm() {
     var form = document.getElementById('addBusForm');
     var formData = new FormData(form);
@@ -42,6 +47,26 @@ function editBus(busId) {
         modal.style.display = 'block';
     })
     .catch(error => console.error('Error fetching bus details:', error));
+}
+
+function submitEditBusForm() {
+    var form = document.getElementById('editBusForm');
+    var formData = new FormData(form);
+    var busId = document.getElementById('editBusId').value;
+
+    fetch(`/college/edit_bus/${busId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Bus updated successfully!');
+            window.location.href = '/college/manage_buses';
+        } else {
+            alert('Failed to update bus.');
+        }
+    })
+    .catch(error => console.error('Error updating bus:', error));
 }
 
 function deleteBus(busId) {

@@ -81,7 +81,19 @@ def add_route():
 @college_bp.route('/college/bus_details/<bus_id>', methods=['GET'])
 def bus_details(bus_id):
     bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
-    return jsonify(bus)
+    if bus:
+        # Convert ObjectId to string and create a new dict with serializable values
+        bus_data = {
+            'bus_number': bus.get('bus_number'),
+            'route_number': bus.get('route_number'),
+            'driver_name': bus.get('driver_name'),
+            'capacity': bus.get('capacity'),
+            'status': bus.get('status'),
+            'last_maintenance': bus.get('last_maintenance'),
+            '_id': str(bus['_id'])
+        }
+        return jsonify(bus_data)
+    return jsonify({'error': 'Bus not found'}), 404
 
 
 @college_bp.route('/college/edit_bus/<bus_id>', methods=['POST'])

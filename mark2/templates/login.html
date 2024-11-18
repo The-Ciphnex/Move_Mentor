@@ -1,32 +1,27 @@
-{% extends "base.html" %} 
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="auth-container">
   <div class="auth-card">
     <h2>Login as {{ user_type.title() }}</h2>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <form method="POST" class="auth-form" onsubmit="return validateForm()">
+    <form method="POST" class="auth-form">
       {% if user_type == 'driver' %}
       <div class="form-group">
         <label for="unique_code">Unique Code</label>
-        <input type="text" id="unique_code" name="unique_code" required minlength="6" />
+        <input type="text" id="unique_code" name="unique_code" required />
       </div>
       {% else %}
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
+        <input type="email" id="email" name="email" required />
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required minlength="8" />
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="remember_me" value="1"> Remember Me
+        </label>
       </div>
       {% endif %}
 
@@ -37,32 +32,12 @@
     <div class="auth-links">
       <p>
         Don't have an account?
-        <a href="{{ url_for('auth.register', user_type=user_type) }}">Register here</a>
+        <a href="{{ url_for('auth.register', user_type=user_type) }}"
+          >Register here</a
+        >
       </p>
     </div>
     {% endif %}
   </div>
 </div>
-
-<script>
-function validateForm() {
-    {% if user_type != 'driver' %}
-    const email = document.getElementById('email').value;
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    
-    if (!emailPattern.test(email)) {
-        alert('Please enter a valid email address');
-        return false;
-    }
-    {% else %}
-    const uniqueCode = document.getElementById('unique_code').value;
-    if (uniqueCode.length < 6) {
-        alert('Unique code must be at least 6 characters long');
-        return false;
-    }
-    {% endif %}
-    
-    return true;
-}
-</script>
 {% endblock %}
