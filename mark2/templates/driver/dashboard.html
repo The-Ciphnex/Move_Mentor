@@ -1,306 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Driver Dashboard</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 20px;
-        font-family: Arial, sans-serif;
-        background-color: #f0f2f5;
-      }
-      .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-      .card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-      }
-      .location-card {
-        min-height: 600px;
-      }
-      #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 8px;
-        margin: 15px 0;
-      }
-      .route-info {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 15px;
-      }
-      .route-info h3 {
-        margin-top: 0;
-        color: #1a73e8;
-      }
-      .stop-marker {
-        background: #4285f4;
-        border-radius: 50%;
-        border: 2px solid white;
-        width: 12px;
-        height: 12px;
-        cursor: pointer;
-      }
-      .current-location {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        padding: 10px;
-        background: #e8f0fe;
-        border-radius: 4px;
-      }
-      .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-      }
-      .stat-card {
-        background: #fff;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-      .stat-value {
-        font-size: 24px;
-        font-weight: bold;
-        color: #1a73e8;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="dashboard-container">
-      <div class="card location-card">
-        <h2>Driver Dashboard</h2>
-        <div class="current-location">
-          <strong>Current Route: </strong>
-          <span id="route-name">Mysore Palace - Infosys Route (MYS001)</span>
-        </div>
-        <div id="map"></div>
-        <div class="route-info">
-          <h3>Route Information</h3>
-          <div class="stats-container">
-            <div class="stat-card">
-              <div>Current Speed</div>
-              <div class="stat-value">
-                <span id="current-speed">0</span> km/h
-              </div>
-            </div>
-            <div class="stat-card">
-              <div>Next Stop</div>
-              <div class="stat-value" id="next-stop">-</div>
-            </div>
-            <div class="stat-card">
-              <div>ETA to Next Stop</div>
-              <div class="stat-value" id="eta">-</div>
-            </div>
-          </div>
-        </div>
+{% extends "base.html" %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/driver_dashboard.css') }}"
+/>
+{% endblock %} {% block content %}
+<div class="dashboard-container">
+  <div class="card location-card">
+    <h2>Live Bus Location</h2>
+    <div id="map" style="height: 400px"></div>
+  </div>
+
+  <div class="card notifications-card">
+    <h2>Notifications</h2>
+    <div class="notifications-list">
+      {% for notification in notifications %}
+      <div class="notification">
+        <p>{{ notification.message }}</p>
+        <span class="timestamp"
+          >{{ notification.timestamp.strftime('%H:%M') }}</span
+        >
       </div>
+      {% endfor %}
     </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c"></script>
+<script>
+  function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 0, lng: 0 }, // Default center
+      zoom: 15,
+    });
 
-    <script>
-      // Mysore routes data
-      const ROUTES = {
-        MYS001: {
-          name: "Mysore Palace - Infosys",
-          coordinates: [
-            { lat: 12.3052, lng: 76.6553 }, // Mysore Palace
-            { lat: 12.3096, lng: 76.6497 }, // K.R. Circle
-            { lat: 12.3147, lng: 76.6428 }, // Railway Station
-            { lat: 12.3235, lng: 76.6394 }, // Gokulam
-            { lat: 12.3419, lng: 76.6393 }, // Hebbal
-            { lat: 12.3721, lng: 76.6354 }, // Infosys Mysore
-          ],
-          stops: [
-            {
-              name: "Mysore Palace Bus Stop",
-              lat: 12.3052,
-              lng: 76.6553,
-              eta_minutes: 0,
-            },
-            {
-              name: "K.R. Circle",
-              lat: 12.3096,
-              lng: 76.6497,
-              eta_minutes: 10,
-            },
-            {
-              name: "Railway Station",
-              lat: 12.3147,
-              lng: 76.6428,
-              eta_minutes: 20,
-            },
-            {
-              name: "Gokulam Main Road",
-              lat: 12.3235,
-              lng: 76.6394,
-              eta_minutes: 30,
-            },
-            {
-              name: "Hebbal",
-              lat: 12.3419,
-              lng: 76.6393,
-              eta_minutes: 40,
-            },
-            {
-              name: "Infosys Mysore",
-              lat: 12.3721,
-              lng: 76.6354,
-              eta_minutes: 50,
-            },
-          ],
-        },
-      };
+    // Fetch the bus route and location
+    fetch(`/api/bus-location/${session["route_number"]}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const busLocation = data.location; // Current bus location
+        const busRoute = data.route; // Bus route coordinates
 
-      let map;
-      let currentMarker;
-      let routePath;
-      let stopMarkers = [];
-      let currentStopIndex = 0;
-      let simulationInterval;
-
-      function initMap() {
-        const MYSORE_CENTER = { lat: 12.3052, lng: 76.6553 }; // Mysore Palace coordinates
-
-        map = new google.maps.Map(document.getElementById("map"), {
-          center: MYSORE_CENTER,
-          zoom: 13,
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }],
-            },
-          ],
+        // Set the map center to the bus location
+        const busLatLng = { lat: busLocation.lat, lng: busLocation.lng };
+        map.setCenter(busLatLng);
+        new google.maps.Marker({
+          position: busLatLng,
+          map: map,
+          title: "Bus Location",
         });
 
-        // Initialize the route
-        const route = ROUTES.MYS001;
-        drawRoute(route);
-        startBusSimulation(route);
-      }
-
-      function drawRoute(route) {
-        // Draw the route line
-        if (routePath) {
-          routePath.setMap(null);
-        }
-        routePath = new google.maps.Polyline({
-          path: route.coordinates,
+        // Draw the route on the map
+        const routePath = new google.maps.Polyline({
+          path: busRoute,
           geodesic: true,
           strokeColor: "#FF0000",
           strokeOpacity: 1.0,
           strokeWeight: 2,
         });
         routePath.setMap(map);
+      });
+  }
 
-        // Add stop markers
-        stopMarkers.forEach((marker) => marker.setMap(null));
-        stopMarkers = [];
-
-        route.stops.forEach((stop, index) => {
-          const marker = new google.maps.Marker({
-            position: { lat: stop.lat, lng: stop.lng },
-            map: map,
-            title: stop.name,
-            icon: {
-              url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            },
-          });
-          stopMarkers.push(marker);
-
-          // Add info window for each stop
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div><strong>${stop.name}</strong><br>ETA: ${stop.eta_minutes} minutes</div>`,
-          });
-
-          marker.addListener("click", () => {
-            infoWindow.open(map, marker);
-          });
-        });
-      }
-
-      function startBusSimulation(route) {
-        if (!currentMarker) {
-          currentMarker = new google.maps.Marker({
-            position: route.coordinates[0],
-            map: map,
-            title: "Bus MYS001",
-            icon: {
-              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-              scale: 6,
-              fillColor: "#4285F4",
-              fillOpacity: 1,
-              strokeWeight: 2,
-              rotation: 0,
-            },
-          });
-        }
-
-        let step = 0;
-        const numSteps = 100; // Total steps for smooth movement
-        let currentPathIndex = 0;
-
-        if (simulationInterval) {
-          clearInterval(simulationInterval);
-        }
-
-        simulationInterval = setInterval(() => {
-          if (currentPathIndex >= route.coordinates.length - 1) {
-            currentPathIndex = 0;
-            step = 0;
-          }
-
-          const start = route.coordinates[currentPathIndex];
-          const end = route.coordinates[currentPathIndex + 1];
-
-          const lat = start.lat + (end.lat - start.lat) * (step / numSteps);
-          const lng = start.lng + (end.lng - start.lng) * (step / numSteps);
-
-          const position = { lat, lng };
-          currentMarker.setPosition(position);
-
-          // Update speed (simulate varying speeds)
-          const speed = 25 + Math.sin(step / 10) * 5;
-          document.getElementById("current-speed").textContent =
-            Math.round(speed);
-
-          // Update next stop info
-          const nextStop = route.stops[currentPathIndex + 1];
-          if (nextStop) {
-            document.getElementById("next-stop").textContent = nextStop.name;
-            document.getElementById("eta").textContent = `${Math.round(
-              nextStop.eta_minutes * (1 - step / numSteps)
-            )} min`;
-          }
-
-          step++;
-          if (step >= numSteps) {
-            currentPathIndex++;
-            step = 0;
-          }
-        }, 100);
-      }
-
-      // Start the map
-      window.onload = function () {
-        // Load Google Maps API
-        const script = document.createElement("script");
-        script.src =
-          "https://maps.googleapis.com/maps/api/js?key=AIzaSyAuGoIpqUhWuTW92mDgDK4AC5hC89kYZZE&callback=initMap";
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      };
-    </script>
-  </body>
-</html>
+  initMap();
+</script>
+{% endblock %}
