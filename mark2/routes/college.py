@@ -81,19 +81,7 @@ def add_route():
 @college_bp.route('/college/bus_details/<bus_id>', methods=['GET'])
 def bus_details(bus_id):
     bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
-    if bus:
-        # Convert ObjectId to string and create a new dict with serializable values
-        bus_data = {
-            'bus_number': bus.get('bus_number'),
-            'route_number': bus.get('route_number'),
-            'driver_name': bus.get('driver_name'),
-            'capacity': bus.get('capacity'),
-            'status': bus.get('status'),
-            'last_maintenance': bus.get('last_maintenance'),
-            '_id': str(bus['_id'])
-        }
-        return jsonify(bus_data)
-    return jsonify({'error': 'Bus not found'}), 404
+    return jsonify(bus)
 
 
 @college_bp.route('/college/edit_bus/<bus_id>', methods=['POST'])
@@ -118,8 +106,15 @@ def delete_bus(bus_id):
     if 'user_id' not in session or session['user_type'] != 'college':
         return jsonify({'error': 'Unauthorized'}), 401
 
-    mongo.db.buses.delete_one({'_id': ObjectId(bus_id)})
-    return jsonify({'success': 'Bus deleted successfully'})
+    # First get the bus details to know its bus_number
+    bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
+    if bus:
+        # Delete all routes associated with this bus number
+        mongo.db.routes.delete_many({'bus_number': bus['bus_number']})
+        # Then delete the bus
+        mongo.db.buses.delete_one({'_id': ObjectId(bus_id)})
+        return jsonify({'success': 'Bus and associated routes deleted successfully'})
+    return jsonify({'error': 'Bus not found'}), 404
 
 
 @college_bp.route('/college/delete_route/<route_id>', methods=['DELETE'])
