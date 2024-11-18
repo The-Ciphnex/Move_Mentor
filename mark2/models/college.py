@@ -12,7 +12,22 @@ class College:
         return list(self.mongo.db.routes.find({'college_id': self.college_id}))
 
     def get_active_drivers(self):
-        return self.mongo.db.drivers.count_documents({'college_id': self.college_id, 'status': 'active'})
+        # Query buses with active drivers for this college
+        return self.mongo.db.buses.count_documents({
+            'college_id': self.college_id,
+            'driver_name': {'$exists': True, '$ne': ''},  # Check for non-empty driver name
+            'status': 'active'
+        })
 
     def get_total_students(self):
-        return self.mongo.db.students.count_documents({'college_id': self.college_id})
+        # Get all active routes for this college
+        college_routes = [route['route_number'] for route in self.mongo.db.routes.find({
+            'college_id': self.college_id,
+            'status': 'active'
+        })]
+        
+        # Count students assigned to these routes and are active
+        return self.mongo.db.students.count_documents({
+            'route_number': {'$in': college_routes},
+            'status': 'active'  # Only count active students
+        })
