@@ -96,21 +96,6 @@ def bus_details(bus_id):
     return jsonify({'error': 'Bus not found'}), 404
 
 
-@college_bp.route('/college/route_details/<route_id>', methods=['GET'])
-def route_details(route_id):
-    route = mongo.db.routes.find_one({'_id': ObjectId(route_id)})
-    if route:
-        route_data = {
-            'id': str(route['_id']),
-            'route_number': route['route_number'],
-            'bus_number': route['bus_number'],
-            'stops': route['stops'],
-            'status': route['status']
-        }
-        return jsonify(route_data)
-    return jsonify({'error': 'Route not found'}), 404
-
-
 @college_bp.route('/college/edit_bus/<bus_id>', methods=['POST'])
 def edit_bus(bus_id):
     if 'user_id' not in session or session['user_type'] != 'college':
@@ -134,8 +119,8 @@ def edit_bus(bus_id):
     mongo.db.buses.update_one({'_id': ObjectId(bus_id)}, {'$set': bus_data})
 
     # Update associated route information if bus_number or route_number changed
-    if (existing_bus['bus_number'] != bus_data['bus_number'] or
-            existing_bus['route_number'] != bus_data['route_number']):
+    if (existing_bus['bus_number'] != bus_data['bus_number'] or 
+        existing_bus['route_number'] != bus_data['route_number']):
         mongo.db.routes.update_many(
             {
                 'bus_number': existing_bus['bus_number'],
@@ -152,43 +137,26 @@ def edit_bus(bus_id):
     return redirect(url_for('college.manage_buses'))
 
 
-@college_bp.route('/college/edit_route/<route_id>', methods=['POST'])
-def edit_route(route_id):
-    if 'user_id' not in session or session['user_type'] != 'college':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    # Get the existing route details
-    existing_route = mongo.db.routes.find_one({'_id': ObjectId(route_id)})
-    if not existing_route:
-        return jsonify({'error': 'Route not found'}), 404
-
-    bus_number = request.form['bus_number']
-    # Check if the bus exists in the database for the specific college
-    bus_exists = mongo.db.buses.find_one(
-        {'bus_number': bus_number, 'college_id': session['user_id']})
-
-    if not bus_exists:
-        return jsonify({'error': 'Bus does not exist for this college'}), 400
-
-    route_data = {
-        'route_number': request.form['route_number'],
-        'bus_number': bus_number,
-        'stops': request.form.getlist('stops[]'),
-        'status': request.form['status']
-    }
-
-    # Update route information
-    mongo.db.routes.update_one({'_id': ObjectId(route_id)}, {'$set': route_data})
-    return jsonify({'success': 'Route updated successfully'})
-
-
 @college_bp.route('/college/delete_bus/<bus_id>', methods=['DELETE'])
 def delete_bus(bus_id):
     if 'user_id' not in session or session['user_type'] != 'college':
         return jsonify({'error': 'Unauthorized'}), 401
 
+    # Get the bus details before deletion
+    bus = mongo.db.buses.find_one({'_id': ObjectId(bus_id)})
+    if not bus:
+        return jsonify({'error': 'Bus not found'}), 404
+
+    # Delete associated routes first
+    mongo.db.routes.delete_many({
+        'bus_number': bus['bus_number'],
+        'college_id': session['user_id']
+    })
+
+    # Then delete the bus
     mongo.db.buses.delete_one({'_id': ObjectId(bus_id)})
-    return jsonify({'success': 'Bus deleted successfully'})
+    
+    return jsonify({'success': 'Bus and associated routes deleted successfully'})
 
 
 @college_bp.route('/college/delete_route/<route_id>', methods=['DELETE'])
