@@ -21,9 +21,9 @@ class Driver:
     def update_location(self, driver_id, location_data):
         return self.mongo.db.bus_locations.insert_one({
             'driver_id': driver_id,
-            'route_number': location_data['route_number'],
-            'latitude': location_data['latitude'],
-            'longitude': location_data['longitude'],
+            'latitude': location_data['lat'],
+            'longitude': location_data['lng'],
+            'accuracy': location_data['accuracy'],
             'timestamp': location_data['timestamp']
         })
 
