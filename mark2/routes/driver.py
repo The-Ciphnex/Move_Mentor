@@ -28,18 +28,36 @@ def dashboard():
 
 @driver_bp.route('/api/update-location', methods=['POST'])
 def update_location():
-    # Check if the user is logged in as a driver
-    if 'user_type' not in session or session['user_type'] != 'driver':
-        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        # Check if the user is logged in as a driver
+        if 'user_type' not in session or session['user_type'] != 'driver':
+            return jsonify({'error': 'Unauthorized'}), 401
 
-    # Get the location data from the request
-    location_data = request.json
+        # Get and validate the location data
+        location_data = request.json
+        required_fields = ['lat', 'lng', 'accuracy', 'timestamp']
+        if not location_data or not all(field in location_data for field in required_fields):
+            return jsonify({'error': 'Missing required location data'}), 400
+            
+        # Validate coordinate ranges
+        if not (-90 <= float(location_data['lat']) <= 90) or \
+           not (-180 <= float(location_data['lng']) <= 180):
+            return jsonify({'error': 'Invalid coordinate values'}), 400
+            
+        # Validate accuracy
+        if float(location_data['accuracy']) > 100:  # More than 100 meters is too inaccurate
+            return jsonify({'error': 'Location accuracy too low'}), 400
 
-    # Create a Driver instance to update the location
-    driver = Driver(mongo)
-    driver.update_location(session['user_id'], location_data)
+        # Add route_number to location data
+        location_data['route_number'] = session.get('route_number')
+        
+        # Create a Driver instance to update the location
+        driver = Driver(mongo)
+        driver.update_location(session['user_id'], location_data)
 
-    return jsonify({'success': True})
+        return jsonify({'success': True, 'message': 'Location updated successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @driver_bp.route('/api/bus-location/<route_number>')

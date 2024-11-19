@@ -8,31 +8,76 @@
   <div class="card location-card">
     <h2>Your Bus Location</h2>
     <div id="map" style="height: 400px"></div>
+    <button id="refreshLocation" class="btn btn-primary" style="margin: 10px 0;">
+      <i class="fas fa-sync"></i> Refresh Bus Location
+    </button>
   </div>
 </div>
 {% endblock %} {% block extra_js %}
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c"></script>
 <script>
+  let map;
+  let currentMarker;
+
   function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: { lat: 0, lng: 0 }, // Default center
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 20.5937, lng: 78.9629 }, // Center of India
       zoom: 15,
     });
 
+    // Add refresh button click handler
+    document.getElementById("refreshLocation").addEventListener("click", updateBusLocation);
+    
+    // Initial location update
+    updateBusLocation();
+  }
+
+  function updateBusLocation() {
+    // Show loading state on button
+    const refreshBtn = document.getElementById("refreshLocation");
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    
     // Fetch the bus location for the student
     fetch(`/api/student-bus-location/${session["route_number"]}`)
       .then((response) => response.json())
       .then((data) => {
-        const busLocation = data.location; // Current bus location
-
-        // Set the map center to the bus location
-        const busLatLng = { lat: busLocation.lat, lng: busLocation.lng };
-        map.setCenter(busLatLng);
-        new google.maps.Marker({
-          position: busLatLng,
-          map: map,
-          title: "Bus Location",
-        });
+        if (data.location) {
+          const busLatLng = { lat: data.location.lat, lng: data.location.lng };
+          
+          // Center map on bus location
+          map.setCenter(busLatLng);
+          
+          // Remove old marker if exists
+          if (currentMarker) {
+            currentMarker.setMap(null);
+          }
+          
+          // Create new marker with bus icon
+          currentMarker = new google.maps.Marker({
+            position: busLatLng,
+            map: map,
+            title: "Bus Location",
+            icon: {
+              path: "M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z",
+              fillColor: "#4285F4",
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 2,
+              scale: 1.5,
+              anchor: new google.maps.Point(10, 10),
+            },
+          });
+        } else {
+          alert("Unable to get bus location. Please try again later.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching bus location:", error);
+        alert("Error getting bus location. Please try again.");
+      })
+      .finally(() => {
+        // Reset button text
+        refreshBtn.innerHTML = '<i class="fas fa-sync"></i> Refresh Bus Location';
       });
   }
 
