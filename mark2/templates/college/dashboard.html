@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block extra_css %}
+{% extends "base.html" %} 
+{% block extra_css %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c&libraries=places,geometry"></script>
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/dashboard.css') }}"
@@ -97,7 +99,9 @@
         <label>Stops</label>
         <div id="stopsList">
           <div class="stop-entry">
-            <input type="text" name="stops[]" required />
+            <input type="text" class="stop-input" name="stops[]" required placeholder="Search for a location"/>
+            <input type="hidden" class="stop-lat" name="stop_lats[]">
+            <input type="hidden" class="stop-lng" name="stop_lngs[]">
             <button
               type="button"
               class="btn btn-sm btn-danger"
@@ -169,4 +173,5 @@
 </div>
 {% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/location_autocomplete.js') }}"></script>
 {% endblock %}

@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, session, redirect, url_for, jsonify
 from models.college import College
 from bson.objectid import ObjectId
@@ -58,24 +59,59 @@ def add_route():
     if 'user_id' not in session or session['user_type'] != 'college':
         return jsonify({'error': 'Unauthorized'}), 401
 
-    bus_number = request.form['bus_number']
-    # Check if the bus exists in the database for the specific college
-    bus_exists = mongo.db.buses.find_one(
-        {'bus_number': bus_number, 'college_id': session['user_id']})
+    try:
+        bus_number = request.form['bus_number']
+        # Check if the bus exists in the database for the specific college
+        bus_exists = mongo.db.buses.find_one(
+            {'bus_number': bus_number, 'college_id': session['user_id']})
 
-    if not bus_exists:
-        # Return an error if the bus does not exist
-        return jsonify({'error': 'Bus does not exist for this college'}), 400
+        if not bus_exists:
+            return jsonify({'error': 'Bus does not exist for this college'}), 400
 
-    route_data = {
-        'route_number': request.form['route_number'],
-        'bus_number': bus_number,
-        'stops': request.form.getlist('stops[]'),
-        'status': 'active',  # Default status
-        'college_id': session['user_id']  # Associate route with the college
-    }
-    mongo.db.routes.insert_one(route_data)
-    return redirect(url_for('college.dashboard'))
+        # Process stops with location data
+        stops = []
+        stop_addresses = request.form.getlist('stops[]')
+        stop_lats = request.form.getlist('stop_lats[]')
+        stop_lngs = request.form.getlist('stop_lngs[]')
+        
+        if not stop_addresses or len(stop_addresses) < 2:
+            return jsonify({'error': 'At least two stops are required'}), 400
+        
+        for i in range(len(stop_addresses)):
+            if not stop_addresses[i] or not stop_lats[i] or not stop_lngs[i]:
+                return jsonify({'error': f'Invalid location data for stop {i+1}'}), 400
+                
+            stop = {
+                'address': stop_addresses[i],
+                'lat': float(stop_lats[i]),
+                'lng': float(stop_lngs[i]),
+                'sequence': i + 1
+            }
+            stops.append(stop)
+
+        route_data = {
+            'route_number': request.form['route_number'],
+            'bus_number': bus_number,
+            'stops': stops,
+            'status': 'active',
+            'college_id': session['user_id'],
+            'created_at': datetime.utcnow()
+        }
+        
+        # Check if route number already exists
+        existing_route = mongo.db.routes.find_one({
+            'route_number': route_data['route_number'],
+            'college_id': session['user_id']
+        })
+        
+        if existing_route:
+            return jsonify({'error': 'Route number already exists'}), 400
+            
+        mongo.db.routes.insert_one(route_data)
+        return jsonify({'success': 'Route added successfully'})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @college_bp.route('/college/bus_details/<bus_id>', methods=['GET'])
