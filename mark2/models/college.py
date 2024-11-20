@@ -9,7 +9,18 @@ class College:
             {'_id': ObjectId(college_id)})
 
     def get_routes(self):
-        return list(self.mongo.db.routes.find({'college_id': self.college_id}))
+        routes = list(self.mongo.db.routes.find({'college_id': self.college_id}))
+        # Format stops data for display
+        for route in routes:
+            if 'stops' in route:
+                formatted_stops = []
+                for stop in route['stops']:
+                    if isinstance(stop, dict):
+                        formatted_stops.append(stop['address'])
+                    else:
+                        formatted_stops.append(stop)
+                route['formatted_stops'] = formatted_stops
+        return routes
 
     def get_active_drivers(self):
         # Query buses with active drivers for this college

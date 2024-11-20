@@ -8,7 +8,7 @@
   <div class="card location-card">
     <h2>Live Bus Location</h2>
     <div id="map" style="height: 400px"></div>
-    <button id="refreshLocation" class="btn btn-primary" style="margin: 10px 0;">
+    <button id="refreshLocation" class="btn btn-primary" style="margin: 10px 0">
       <i class="fas fa-sync"></i> Refresh Location
     </button>
   </div>
@@ -28,32 +28,42 @@
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c&libraries=geometry"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c&libraries=places,geometry"></script>
 <script src="{{ url_for('static', filename='js/location.js') }}"></script>
 <script>
-let locationTracker;
-let map;
-let currentMarker;
-let routePath;
+  let locationTracker;
+  let map;
+  let currentMarker;
+  let routePath;
 
   function initMap() {
     // Start with a default center
     map = new google.maps.Map(document.getElementById("map"), {
       center: { lat: 20.5937, lng: 78.9629 }, // Default center
       zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
     });
+
+    // Set up automatic refresh every 15 seconds
+    setInterval(() => {
+      if (locationTracker.lastValidLocation) {
+        map.setCenter({
+          lat: locationTracker.lastValidLocation.lat,
+          lng: locationTracker.lastValidLocation.lng,
+        });
+      }
+    }, 15000);
 
     // Initialize location tracker
     locationTracker = new LocationTracker(map);
-    
+
     // Get initial position
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const initialLocation = {
             lat: position.coords.latitude,
-            lng: position.coords.longitude
+            lng: position.coords.longitude,
           };
           map.setCenter(initialLocation);
           locationTracker.startTracking();
@@ -70,7 +80,7 @@ let routePath;
       if (locationTracker.lastValidLocation) {
         map.setCenter({
           lat: locationTracker.lastValidLocation.lat,
-          lng: locationTracker.lastValidLocation.lng
+          lng: locationTracker.lastValidLocation.lng,
         });
       }
       locationTracker.stopTracking();
@@ -82,22 +92,22 @@ let routePath;
     // Show loading state on button
     const refreshBtn = document.getElementById("refreshLocation");
     refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-    
+
     // Fetch the bus route and location
     fetch(`/api/bus-location/${session["route_number"]}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.location) {
           const busLatLng = { lat: data.location.lat, lng: data.location.lng };
-          
+
           // Center map on bus location
           map.setCenter(busLatLng);
-          
+
           // Remove old marker if exists
           if (currentMarker) {
             currentMarker.setMap(null);
           }
-          
+
           // Create new marker with bus icon
           currentMarker = new google.maps.Marker({
             position: busLatLng,
