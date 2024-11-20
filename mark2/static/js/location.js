@@ -17,9 +17,8 @@ class LocationTracker {
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
                     maximumAge: 1000,
-                    distanceFilter: 10
+                    distanceFilter: 5 // Reduced to 5 meters for more frequent updates
                 }
             );
         } else {

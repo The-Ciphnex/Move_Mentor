@@ -44,6 +44,16 @@ let routePath;
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
 
+    // Set up automatic refresh every 10 seconds
+    setInterval(() => {
+      if (locationTracker.lastValidLocation) {
+        map.setCenter({
+          lat: locationTracker.lastValidLocation.lat,
+          lng: locationTracker.lastValidLocation.lng
+        });
+      }
+    }, 10000);
+
     // Initialize location tracker
     locationTracker = new LocationTracker(map);
     
