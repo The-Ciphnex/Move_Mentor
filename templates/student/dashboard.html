@@ -8,13 +8,13 @@
   <div class="card location-card">
     <h2>Your Bus Location</h2>
     <div id="map" style="height: 400px"></div>
-    <button id="refreshLocation" class="btn btn-primary" style="margin: 10px 0;">
+    <button id="refreshLocation" class="btn btn-primary" style="margin: 10px 0">
       <i class="fas fa-sync"></i> Refresh Bus Location
     </button>
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key= YOUR_API_KEY &libraries=places"></script>
 <script>
   let map;
   let currentMarker;
@@ -26,8 +26,10 @@
     });
 
     // Add refresh button click handler
-    document.getElementById("refreshLocation").addEventListener("click", updateBusLocation);
-    
+    document
+      .getElementById("refreshLocation")
+      .addEventListener("click", updateBusLocation);
+
     // Initial location update
     updateBusLocation();
   }
@@ -36,22 +38,22 @@
     // Show loading state on button
     const refreshBtn = document.getElementById("refreshLocation");
     refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-    
+
     // Fetch the bus location for the student
     fetch(`/api/student-bus-location/${session["route_number"]}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.location) {
           const busLatLng = { lat: data.location.lat, lng: data.location.lng };
-          
+
           // Center map on bus location
           map.setCenter(busLatLng);
-          
+
           // Remove old marker if exists
           if (currentMarker) {
             currentMarker.setMap(null);
           }
-          
+
           // Create new marker with bus icon
           currentMarker = new google.maps.Marker({
             position: busLatLng,
@@ -77,7 +79,8 @@
       })
       .finally(() => {
         // Reset button text
-        refreshBtn.innerHTML = '<i class="fas fa-sync"></i> Refresh Bus Location';
+        refreshBtn.innerHTML =
+          '<i class="fas fa-sync"></i> Refresh Bus Location';
       });
   }
 

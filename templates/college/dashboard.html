@@ -1,6 +1,5 @@
-{% extends "base.html" %} 
-{% block extra_css %}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC77nilbjFldytx5doMTQ-Qf3EGp8Yg87c&libraries=places,geometry"></script>
+{% extends "base.html" %} {% block extra_css %}
+<script src="https://maps.googleapis.com/maps/api/js?key= YOUR_API_KEY &libraries=places,geometry"></script>
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/dashboard.css') }}"
@@ -99,9 +98,15 @@
         <label>Stops</label>
         <div id="stopsList">
           <div class="stop-entry">
-            <input type="text" class="stop-input" name="stops[]" required placeholder="Search for a location"/>
-            <input type="hidden" class="stop-lat" name="stop_lats[]">
-            <input type="hidden" class="stop-lng" name="stop_lngs[]">
+            <input
+              type="text"
+              class="stop-input"
+              name="stops[]"
+              required
+              placeholder="Search for a location"
+            />
+            <input type="hidden" class="stop-lat" name="stop_lats[]" />
+            <input type="hidden" class="stop-lng" name="stop_lngs[]" />
             <button
               type="button"
               class="btn btn-sm btn-danger"
@@ -152,8 +157,7 @@
       </div>
       <div class="form-group">
         <label>Stops</label>
-        <div id="editStopsList">
-        </div>
+        <div id="editStopsList"></div>
         <button
           type="button"
           class="btn btn-sm btn-success"
